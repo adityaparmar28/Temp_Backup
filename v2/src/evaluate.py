@@ -48,7 +48,6 @@ def run_evaluation(model, loader, device, threshold=0.65):
     else:
         roc_auc = 0.5
 
-    # Calculate metrics at stated fixed operating threshold (no test-set peeking leakage)
     binary_preds = (all_probs >= threshold).astype(int)
     macro_f1 = float(f1_score(all_targets, binary_preds, average="macro"))
     acc = float(accuracy_score(all_targets, binary_preds))
@@ -57,30 +56,17 @@ def run_evaluation(model, loader, device, threshold=0.65):
     tn, fp, fn, tp = confusion_matrix(all_targets, binary_preds, labels=[0, 1]).ravel()
     fpr = float(fp / (fp + tn)) if (fp + tn) > 0 else 0.0
 
-    # Also compute at standard 0.50 baseline for comparison
-    preds_50 = (all_probs >= 0.50).astype(int)
-    acc_50 = float(accuracy_score(all_targets, preds_50))
-    f1_50 = float(f1_score(all_targets, preds_50, average="macro"))
-    tn_50, fp_50, fn_50, tp_50 = confusion_matrix(all_targets, preds_50, labels=[0, 1]).ravel()
-    fpr_50 = float(fp_50 / (fp_50 + tn_50)) if (fp_50 + tn_50) > 0 else 0.0
-
     return {
         "roc_auc": round(roc_auc, 4),
-        "operating_threshold": threshold,
         "macro_f1": round(macro_f1, 4),
         "accuracy": round(acc, 4),
+        "operating_threshold": threshold,
         "false_positive_rate": round(fpr, 4),
         "confusion_matrix": {
             "TN (True Real)": int(tn),
             "FP (Wrongly Flagged Real)": int(fp),
             "FN (Missed Synthetic)": int(fn),
             "TP (Detected Synthetic)": int(tp)
-        },
-        "baseline_threshold_0_50": {
-            "accuracy": round(acc_50, 4),
-            "macro_f1": round(f1_50, 4),
-            "false_positive_rate": round(fpr_50, 4),
-            "confusion_matrix": {"TN": int(tn_50), "FP": int(fp_50), "FN": int(fn_50), "TP": int(tp_50)}
         },
         "all_probs": all_probs,
         "all_targets": all_targets,
