@@ -47,11 +47,9 @@ def get_training_transforms():
         transforms.Resize((240, 240)),
         transforms.RandomCrop((224, 224)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomPerspective(distortion_scale=0.25, p=0.4), # Simulates taking photo of a screen at an angle
-        transforms.RandomAdjustSharpness(sharpness_factor=2.0, p=0.3), # Simulates mobile camera enhancement (e.g. Moon mode)
-        JPEGCompressionAugmentation(quality_range=(30, 90), p=0.5),
+        JPEGCompressionAugmentation(quality_range=(35, 90), p=0.5),
         GaussianBlurAugmentation(radius_range=(0.5, 1.8), p=0.3),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
